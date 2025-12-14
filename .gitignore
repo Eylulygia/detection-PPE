@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# YOLO / Models
+*.pt
+runs/
+model/
+
+# OS
+.DS_Store
