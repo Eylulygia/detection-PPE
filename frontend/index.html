@@ -1,56 +1,339 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>PPE Detection</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPE Detection Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: rgba(255, 255, 255, 0.06);
+      --panel-strong: rgba(255, 255, 255, 0.14);
+      --accent: #7c3aed;
+      --accent-2: #22d3ee;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.15), transparent 25%),
+                  radial-gradient(circle at 80% 0%, rgba(34, 211, 238, 0.12), transparent 30%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .hero {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .eyebrow {
+      color: var(--accent-2);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 42px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0b1021;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .upload-zone {
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      background: var(--panel-strong);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .upload-zone:hover {
+      border-color: var(--accent-2);
+      transform: translateY(-2px);
+    }
+    .upload-zone.dragging {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2);
+    }
+    .upload-zone p {
+      margin: 6px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      color: #0b1021;
+    }
+    .primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.35);
+    }
+    .secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    button:hover { transform: translateY(-1px); }
+    .preview {
+      margin-top: 12px;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #0b1021;
+      position: relative;
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+    }
+    .preview img {
+      max-width: 100%;
+      display: block;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .result-img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1021;
+      min-height: 240px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+    .chip .bar {
+      width: 6px;
+      height: 20px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    }
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .footer-note {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
 </head>
 <body>
+  <main>
+    <header class="hero">
+      <div class="eyebrow">YOLOv8 + FastAPI</div>
+      <h1>PPE Detection Studio</h1>
+      <p class="lead">Upload a photo, send it through your trained <strong>best.pt</strong> model, and get instant detections for masks, safety helmets, and safety vests with annotated previews.</p>
+    </header>
 
-<h2>PPE Detection Demo</h2>
+    <section class="grid">
+      <div class="panel">
+        <h2><span class="badge">Input</span> Upload an image</h2>
+        <div id="dropZone" class="upload-zone">
+          <strong>Drag & drop</strong> or click to select an image
+          <p>JPG, PNG or HEIC • Higher resolution gives clearer boxes</p>
+          <input id="fileInput" type="file" accept="image/*" hidden />
+        </div>
+        <div class="actions">
+          <button id="selectBtn" class="primary">Choose image</button>
+          <button id="sampleBtn" class="secondary">Use sample preview</button>
+        </div>
+        <div class="preview" id="preview">
+          <span class="hint">Your selected image will appear here before detection.</span>
+          <img id="previewImg" alt="" style="display:none;" />
+        </div>
+        <div class="status" id="status">Waiting for an image…</div>
+      </div>
 
-<input type="file" id="fileInput">
-<button onclick="detect()">Detect</button>
-<br><br>
+      <div class="panel">
+        <h2><span class="badge">Output</span> Detections</h2>
+        <div class="result-img">
+          <img id="resultImg" alt="Detection result" style="display:none; width: 100%; height: auto;" />
+          <span class="hint" id="resultPlaceholder">Run a detection to see bounding boxes.</span>
+        </div>
+        <div class="chips" id="detections"></div>
+        <div class="empty" id="emptyState">No detections yet.</div>
+        <p class="footer-note">Tip: keep faces and PPE fully visible for best results.</p>
+      </div>
+    </section>
+  </main>
 
-<canvas id="canvas"></canvas>
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const previewImg = document.getElementById('previewImg');
+    const preview = document.getElementById('preview');
+    const statusEl = document.getElementById('status');
+    const resultImg = document.getElementById('resultImg');
+    const resultPlaceholder = document.getElementById('resultPlaceholder');
+    const detectionsEl = document.getElementById('detections');
+    const emptyState = document.getElementById('emptyState');
+    const API_URL = '/detect';
 
-<script>
-async function detect() {
-  const file = document.getElementById("fileInput").files[0];
-  const img = new Image();
-  img.src = URL.createObjectURL(file);
-
-  img.onload = async () => {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("http://127.0.0.1:8000/detect", {
-      method: "POST",
-      body: formData
+    document.getElementById('selectBtn').addEventListener('click', () => fileInput.click());
+    document.getElementById('sampleBtn').addEventListener('click', () => {
+      statusEl.textContent = 'Sample preview loaded. Pick a real image to run detection.';
+      previewImg.src = 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80';
+      previewImg.style.display = 'block';
+      resultImg.style.display = 'none';
+      resultPlaceholder.style.display = 'block';
+      detectionsEl.innerHTML = '';
+      emptyState.style.display = 'block';
     });
 
-    const detections = await res.json();
-
-    detections.forEach(det => {
-      const [x1, y1, x2, y2] = det.bbox[0];
-      ctx.strokeStyle = "lime";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-      ctx.fillStyle = "lime";
-      ctx.fillText(
-        `${det.class} (${(det.confidence*100).toFixed(1)}%)`,
-        x1,
-        y1 - 5
-      );
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragging');
     });
-  };
-}
-</script>
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragging'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragging');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleFile(file);
+    });
 
+    function showPreview(file) {
+      const url = URL.createObjectURL(file);
+      previewImg.src = url;
+      previewImg.onload = () => URL.revokeObjectURL(url);
+      previewImg.style.display = 'block';
+      statusEl.textContent = 'Image ready. Running detection…';
+    }
+
+    async function handleFile(file) {
+      showPreview(file);
+      await runDetection(file);
+    }
+
+    async function runDetection(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      statusEl.textContent = 'Sending to model…';
+      detectionsEl.innerHTML = '';
+      emptyState.style.display = 'block';
+
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Detection failed');
+        const data = await res.json();
+        renderResults(data);
+        statusEl.textContent = `Detections: ${data.detections.length}`;
+      } catch (err) {
+        statusEl.textContent = 'Detection failed. Make sure the backend is running (uvicorn backend.main:app --reload).';
+      }
+    }
+
+    function renderResults(data) {
+      if (data.image) {
+        resultImg.src = `data:image/jpeg;base64,${data.image}`;
+        resultImg.style.display = 'block';
+        resultPlaceholder.style.display = 'none';
+      }
+
+      detectionsEl.innerHTML = '';
+      if (!data.detections || !data.detections.length) {
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      data.detections.forEach((det, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = `<span class="bar"></span><strong>${det.class}</strong> <span>${(det.confidence * 100).toFixed(1)}%</span>`;
+        detectionsEl.appendChild(chip);
+      });
+    }
+  </script>
 </body>
 </html>
