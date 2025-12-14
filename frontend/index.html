@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PPE Detection</title>
+</head>
+<body>
+
+<h2>PPE Detection Demo</h2>
+
+<input type="file" id="fileInput">
+<button onclick="detect()">Detect</button>
+<br><br>
+
+<canvas id="canvas"></canvas>
+
+<script>
+async function detect() {
+  const file = document.getElementById("fileInput").files[0];
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+
+  img.onload = async () => {
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("http://127.0.0.1:8000/detect", {
+      method: "POST",
+      body: formData
+    });
+
+    const detections = await res.json();
+
+    detections.forEach(det => {
+      const [x1, y1, x2, y2] = det.bbox[0];
+      ctx.strokeStyle = "lime";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+      ctx.fillStyle = "lime";
+      ctx.fillText(
+        `${det.class} (${(det.confidence*100).toFixed(1)}%)`,
+        x1,
+        y1 - 5
+      );
+    });
+  };
+}
+</script>
+
+</body>
+</html>
